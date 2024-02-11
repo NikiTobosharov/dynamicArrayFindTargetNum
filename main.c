@@ -1,43 +1,87 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
 #include "vector.c"
 
+void scanNumbers(Vector *array);
+void findPeakElement(Vector *array);
 void findTheSumOfElements(Vector *array);
-void freeArray(Vector *array);
 
-int main() {
-    Vector array; 
+int main() 
+{
+    Vector array;
+    vectorInit(&array, 1);
 
-    printf("Enter the elements (type -1 to stop):\n");
+    printf("Enter numbers (press two times Enter):\n");
+    scanNumbers(&array);
     findTheSumOfElements(&array);
+    findPeakElement(&array);
 
-
-    freeArray(&array);
+    vectorFree(&array);
     return 0;
 }
 
-void findTheSumOfElements(Vector *array) 
+void scanNumbers(Vector *array) 
 {
-    int num = 0;
+    char input[100];
+    char *token;
+
+    while (true) 
+    {
+        fgets(input, sizeof(input), stdin);
+
+        if (input[0] == '\n' || input[0] == ' ')
+        break;
+
+        token = strtok(input, " \n");
+        while (token != NULL) 
+        {
+            int num = atoi(token);
+            int *ptr = malloc(sizeof(int));
+            if (ptr == NULL) 
+            {
+                printf("Memory allocation failed. Exiting.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            *ptr = num;
+            vectorPush(array, ptr);
+            token = strtok(NULL, " \n");
+        }
+    }
+}
+
+void findPeakElement(Vector *array)
+{
+    for (int i = 0; i < vectorGetSize(array); i++)
+    {
+        int *previous = (i > 0) ? vectorGet(array, i - 1) : NULL;
+        int *current = vectorGet(array, i);
+        int *next = (i < vectorGetSize(array) - 1) ? vectorGet(array, i + 1) : NULL;
+
+        if (current == NULL)
+        {
+            continue;
+        }
+
+        if ((previous == NULL || *current > *previous) && (next == NULL || *current > *next))
+        {
+            printf("%d is a peak element.\n", *current);
+        }
+    }
+}
+
+void findTheSumOfElements(Vector *array)
+{
+    char input[100];
     int target = 0;
     int found = 0;
 
-    vectorInit(array, 1);
-    while (1) 
-    {
-        scanf("%d", &num);
-        if (num == -1) 
-        {
-            break;
-        }
+    printf("Enter the target sum:\n");
+    fgets(input, sizeof(input), stdin);
+    sscanf(input, "%d", &target);
 
-        int *newNum = malloc(sizeof(int));
-        *newNum = num;
-        vectorPush(array, newNum);
-    }
-    scanf("%d", &target);
-    
     for (int i = 0; i < vectorGetSize(array); i++)
     {
         int *firstNumPtr = (int *)vectorGet(array, i);
@@ -66,16 +110,4 @@ void findTheSumOfElements(Vector *array)
     {
         printf("No such a combination.\n");
     }
-}
-
-
-void freeArray(Vector *array)
-{
-    for (int i = 0; i < vectorGetSize(array); i++) 
-    {
-        int *currentNum = (int *)vectorGet(array, i);
-        free(currentNum); 
-    }
-
-    vectorFree(array);
 }
