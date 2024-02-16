@@ -7,6 +7,11 @@
 void scanNumbers(Vector *array);
 void findPeakElement(Vector *array);
 void findTheSumOfElements(Vector *array);
+void sortArrayLowToHigh(Vector *array);
+void swap(void **a, void **b);
+int partition(void **array, int low, int high);
+void quickSort(void **array, int low, int high);
+void printArray(Vector *array);
 
 int main() 
 {
@@ -17,6 +22,11 @@ int main()
     scanNumbers(&array);
     findTheSumOfElements(&array);
     findPeakElement(&array);
+    printf("Before sort:\n");
+    printArray(&array);
+    sortArrayLowToHigh(&array);
+    printf("Sorted array: \n");
+    printArray(&array);
 
     vectorFree(&array);
     return 0;
@@ -110,4 +120,52 @@ void findTheSumOfElements(Vector *array)
     {
         printf("No such a combination.\n");
     }
+}
+
+void swap(void **a, void **b) 
+{
+    void *temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int partition(void **array, int low, int high)
+{
+    int pivot = *((int *) array[high]);
+    int i = low - 1;
+
+    for (int j = low; j <= high; j++)
+    {
+        if (*((int *)array[j]) < pivot)
+        {
+            i++;
+            swap(&array[i], &array[j]);
+        }
+    }
+    swap(&array[i + 1], &array[high]);
+    return(i + 1);   
+}
+
+void quickSort(void **array, int low, int high)
+{
+    if(low < high)
+    {
+        int pivot = partition(array, low, high);
+        quickSort(array, low, pivot - 1);
+        quickSort(array, pivot + 1, high);
+    }
+}
+
+void sortArrayLowToHigh(Vector *array)
+{
+    quickSort(array->items, 0, vectorGetSize(array) - 1);
+}
+
+void printArray(Vector *array)
+{
+    for (int i = 0; i < vectorGetSize(array); i++) {
+        int *numPtr = (int *)vectorGet(array, i);
+        printf("%d ", *numPtr);
+    }
+    printf("\n");
 }
