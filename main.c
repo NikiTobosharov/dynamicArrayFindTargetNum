@@ -12,6 +12,7 @@ void swap(void **a, void **b);
 int partition(void **array, int low, int high);
 void quickSort(void **array, int low, int high);
 void printArray(Vector *array);
+void binarySearch(Vector *array, int target);
 
 int main() 
 {
@@ -28,7 +29,18 @@ int main()
     printf("Sorted array: \n");
     printArray(&array);
 
+    int target;
+    printf("Enter the target value to search for: ");
+    scanf("%d", &target);
+    printf("Search results:\n");
+    binarySearch(&array, target);
+
+    for (int i = 0; i < vectorGetSize(&array); i++)
+    {
+        free(vectorGet(&array, i));
+    }
     vectorFree(&array);
+    
     return 0;
 }
 
@@ -169,3 +181,50 @@ void printArray(Vector *array)
     }
     printf("\n");
 }
+
+void binarySearch(Vector *array, int target) 
+{
+    int low = 0;
+    int high = vectorGetSize(array) - 1;
+    int found = 0;
+
+    while (low <= high) 
+    {
+        int mid = low + (high - low) / 2;
+        int *midElement = (int *)vectorGet(array, mid);
+
+        if (*midElement == target) 
+        {
+            found = 1;
+            printf("Target value %d found at index %d.\n", target, mid);
+            
+            int left = mid - 1;
+            while (left >= 0 && *((int *)vectorGet(array, left)) == target) 
+            {
+                printf("Target value %d found at index %d.\n", target, left);
+                left--;
+            }
+            
+            int right = mid + 1;
+            while (right < vectorGetSize(array) && *((int *)vectorGet(array, right)) == target) 
+            {
+                printf("Target value %d found at index %d.\n", target, right);
+                right++;
+            }
+            
+            break;
+        } else if (*midElement < target) 
+        {
+            low = mid + 1;
+        } else 
+        {
+            high = mid - 1;
+        }
+    }
+
+    if (!found) 
+    {
+        printf("Target value %d not found in the array.\n", target);
+    }
+}
+
